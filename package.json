@@ -6,6 +6,7 @@
   "dependencies" : {
     "q" : "1.0",
     "config" : "1.6.0",
-    "express" : "4.x"
+    "express" : "4.x",
+    "broadway" : "0.3.6"
   }
 }
