@@ -4,7 +4,7 @@
   "version" : "0.0.1",
   "private" : "true",
   "dependencies" : {
-    "q" : "1.0",
+    "q" : "1.1.0",
     "config" : "1.6.0",
     "express" : "4.x",
     "hbs" : "2.7.0",
