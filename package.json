@@ -1,0 +1,11 @@
+{
+  "name": "automata2",
+  "version": "0.0.1",
+  "description": "Internet of Things framework",
+  "main": "automata.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "David Young",
+  "license": "BSD"
+}
