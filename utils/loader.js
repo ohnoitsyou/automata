@@ -38,8 +38,12 @@ var PluginLoader = function(pluginDirectory) {
     console.log('[PluginLoader] [Load] Finished');
   },
   this.initilize = function(plugin) {
+    // need to create a dependency chain
     console.log('[PluginLoader] [Initilize] Starting');
     console.log('[PluginLoader] [Initilize] Initilizing', plugin);
+    console.log('[PluginLoader] [Debug]',this.plugins['loaded'][plugin]);
+    //console.log('[PluginLoader] [VersionCheck]',_versionCheck(this.plugins['loaded'][plugin]);
+
     this.plugins['loaded'][plugin].initilize();
     this.plugins['initilized'][plugin] = this.plugins['loaded'][plugin];
     console.log('[PluginLoader] [Initilize] Finishing');
@@ -89,6 +93,12 @@ function _listSubDirectories(directory) {
 
 function _isDirectory(directory) {
   return (fs.statSync(directory)).isDirectory();
+}
+
+function _checkVersion(plugin,target) {
+  var re = /(\d).(\d).(\d)/;
+  var major, minor, bug = re.test(target.version);
+  return true;
 }
 
 
