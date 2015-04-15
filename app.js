@@ -10,13 +10,13 @@ var config = require('config');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var pluginloader = require('./utils/loader');
-var loader = new pluginloader('./plugins');
+var loader = new pluginloader(config.get('pluginDir'));
 
-var loadOptions = {'sparkUsername': config.get('sparkUsername'), 'sparkPassword': config.get('sparkPassword')};
-//var loadOptions = {'sparkAccessToken': config.get('sparkAccessToken')};
+//var loadOptions = {'sparkUsername': config.get('sparkUsername'), 'sparkPassword': config.get('sparkPassword')};
+var loadOptions = {'sparkAccessToken': config.get('sparkAccessToken')};
 
 loader.discover();
-loader.load({'sparkAccessToken': config.get('sparkAccessToken')});
+loader.load(loadOptions);
 loader.initilizeAll();
 
 var app = express();
@@ -66,6 +66,5 @@ app.use(function(err, req, res, next) {
     error: {}
   });
 });
-
 
 module.exports = app;
