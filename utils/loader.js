@@ -23,12 +23,11 @@ var PluginLoader = function(pluginDirectory) {
   },
   this.load = function(options) {
     console.log('[PluginLoader] [Load] Starting');
-    console.log('[PluginLoader] [Load]',this.directories);
     for(var i = 0; i < this.directories.length; i++) {
       var plugin = require(this.directories[i]);
       var pluginNameSplit = this.directories[i].split('/');
       var pluginName = pluginNameSplit[pluginNameSplit.length - 1];
-      console.log('[PluginLoader] [Load] Loading',pluginName);
+      console.log('[PluginLoader] [Load] Loading:',pluginName);
       this.plugins['loaded'][pluginName] = new plugin;
       try {
         this.plugins['loaded'][pluginName].load(options);
@@ -42,7 +41,7 @@ var PluginLoader = function(pluginDirectory) {
     console.log('[PluginLoader] [Initilize] Starting');
     console.log('[PluginLoader] [Initilize] Initilizing', plugin);
     this.plugins['loaded'][plugin].initilize();
-    this.plugins['initilized'] = this.plugins['loaded'][plugin];
+    this.plugins['initilized'][plugin] = this.plugins['loaded'][plugin];
     console.log('[PluginLoader] [Initilize] Finishing');
   },
   this.initilizeAll = function() {
@@ -51,6 +50,16 @@ var PluginLoader = function(pluginDirectory) {
       this.initilize(elem);
     },this);
     console.log('[PluginLoader] [InitilizeAll] Finishing');
+  },
+  this.loadRoutes = function() {
+    console.log('[PluginLoader] [LoadRoutes] Starting');
+    Object.keys(this.plugins['initilized']).forEach(function(plugin) {
+      try {
+        plugin.loadRoutes();
+      } catch (e) {
+        console.log('');
+    }},this);
+    console.log('[PluginLoader] [LoadRoutes] Finishing');
   },
   this.getPlugins = function() {
     return this.plugins;
@@ -62,7 +71,7 @@ var PluginLoader = function(pluginDirectory) {
     return this.plugins['loaded']; 
   },
   this.getInitilized = function() {
-    return this.plugins['linitilized'];
+    return this.plugins['initilized'];
   }
 }
 
