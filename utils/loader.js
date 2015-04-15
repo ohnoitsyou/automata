@@ -23,6 +23,7 @@ var PluginLoader = function(pluginDirectory) {
   },
   this.load = function(options) {
     console.log('[PluginLoader] [Load] Starting');
+    console.log('[PluginLoader] [Load]',this.directories);
     for(var i = 0; i < this.directories.length; i++) {
       var plugin = require(this.directories[i]);
       var pluginNameSplit = this.directories[i].split('/');
@@ -70,7 +71,7 @@ function _listSubDirectories(directory) {
     var subDirs = fs.readdirSync(directory);
     subDirs = subDirs.filter(function(dir) { if(!~dir.indexOf('.disabled')) { return true; }});
     subDirs = subDirs.map(function(dir) { return directory + '/' + dir; });
-    return subDirs.map(function(d,i,a) { return _isDirectory(d)? a[i]: false});
+    return subDirs.filter(function(d,i,a) { if(_isDirectory(d)) { return true;} return false;});
   } else {
     console.log('[PluginLoader] [LSD] Not a directory');
     return [];
