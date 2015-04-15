@@ -1,4 +1,5 @@
 "use strict";
+var debug = require('debug')('automata');
 var express = require("express");
 var path = require("path");
 //var favicon = require("serve-favicon");

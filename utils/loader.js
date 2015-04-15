@@ -1,6 +1,7 @@
 // Ok, node is really awesome, but this async thing is getting annoying
 // I'm going to try to make this as sync as possible
 //
+var debug = require('debug')('loader');
 var fs = require('fs');
 var Q = require('q');
 var path = require('path');
@@ -9,6 +10,7 @@ var util = require('util');
 var PluginLoader = function(pluginDirectory) {
   this.basepath = path.join('/',path.relative('/',pluginDirectory)); 
   console.log('[PluginLoader] [Init] ', this.basepath);
+  debug('[PluginLoader] [Init]',this.basepath);
   this.plugins = {'discovered':{},'loaded':{},'initilized':{}};
   this.directories,
   this.discover = function() {

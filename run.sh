@@ -1,3 +1,3 @@
 #!/bin/bash
 reset;
-DEBUG=automata2:* ./bin/www
+DEBUG=automata2:*,loader ./bin/www
