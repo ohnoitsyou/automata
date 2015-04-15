@@ -1,0 +1,19 @@
+{
+  "name": "automata",
+  "main": "automata.js",
+  "version": "0.0.1",
+  "description": "A home automation framework",
+  "authors": [
+    "David Young <ohnoitsyou7043@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "ohnoitsyou.net",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
