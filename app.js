@@ -19,10 +19,11 @@ var loadOptions = {"sparkAccessToken": config.get("sparkAccessToken")};
 
 loader.discover();
 loader.load(loadOptions);
-loader.initilize("lights");
-//loader.initilizeAll();
+//loader.initilize("lights");
+loader.initilizeAll();
 
 var app = express();
+app.enable('trust proxy');
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -30,7 +31,7 @@ app.set("view engine", "hbs");
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger("dev"));
+app.use(logger("short"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());

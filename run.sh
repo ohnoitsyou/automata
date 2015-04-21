@@ -1,3 +1,3 @@
 #!/bin/bash
 reset;
-DEBUG=automata2:*,loader ./bin/www
+DEBUG=automata2:*,PluginLoader,spark,lights ./bin/www

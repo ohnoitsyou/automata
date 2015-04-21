@@ -1,71 +1,86 @@
 // Ok, node is really awesome, but this async thing is getting annoying
 // I'm going to try to make this as sync as possible
 //
-var debug = require('debug')('loader');
+var debug = require('debug')('PluginLoader');
 var fs = require('fs');
 var Q = require('q');
 var path = require('path');
 var util = require('util');
+var semver = require('semver');
 
 var PluginLoader = function(pluginDirectory) {
   this.basepath = path.join('/',path.relative('/',pluginDirectory)); 
-  console.log('[PluginLoader] [Init] ', this.basepath);
-  debug('[PluginLoader] [Init]',this.basepath);
+  debug('[Discover] [Init] %s',this.basepath);
   this.plugins = {'discovered':{},'loaded':{},'initilized':{}};
   this.directories,
   this.discover = function() {
-    console.log('[PluginLoader] [Discover] Starting');
+    debug('[Discover] Starting');
     var that = this;
     this.directories = _listSubDirectories(this.basepath);
     this.plugins['discovered'] = this.directories;
     this.plugins['discovered'].forEach(function(plugin) {
-      console.log('[PluginLoader] [Discover] Found plugin at',plugin);
+      debug('[Discover] Found plugin at %s',plugin);
     });
-    console.log('[PluginLoader] [Discover] Finished');
+    debug('[Discover] Finished');
   },
   this.load = function(options) {
-    console.log('[PluginLoader] [Load] Starting');
+    debug('[Load] Starting');
     for(var i = 0; i < this.directories.length; i++) {
       var plugin = require(this.directories[i]);
       var pluginNameSplit = this.directories[i].split('/');
       var pluginName = pluginNameSplit[pluginNameSplit.length - 1];
-      console.log('[PluginLoader] [Load] Loading:',pluginName);
+      debug('[Load] Loading: %s',pluginName);
       this.plugins['loaded'][pluginName] = new plugin;
       try {
         this.plugins['loaded'][pluginName].load(options);
       } catch (e) {
-        console.log('[PluginLoader] [Load] Plugin',pluginName,'doesnt have a load method');
+        debug('[Load] Plugin \'%s\' doesn\'t have a load method',pluginName);
       }
     }
-    console.log('[PluginLoader] [Load] Finished');
+    debug('[Load] Finished');
   },
   this.initilize = function(plugin) {
+    var p = this.plugins['loaded'][plugin];
     // need to create a dependency chain
-    console.log('[PluginLoader] [Initilize] Starting');
-    console.log('[PluginLoader] [Initilize] Initilizing', plugin);
-    console.log('[PluginLoader] [Debug]',this.plugins['loaded'][plugin]);
-    //console.log('[PluginLoader] [VersionCheck]',_versionCheck(this.plugins['loaded'][plugin]);
-
-    this.plugins['loaded'][plugin].initilize();
-    this.plugins['initilized'][plugin] = this.plugins['loaded'][plugin];
-    console.log('[PluginLoader] [Initilize] Finishing');
+    debug('[Initilize] Starting');
+    if(p.requires) {
+      p.requires.forEach(function(req) {
+        var keys = Object.keys(req);
+        keys.forEach(function(key) {
+          if(this.plugins['loaded'][key]) {
+            if(_versionCheck(this.plugins['loaded'][key].version, req[key])) {
+              debug('[Initilize] Plugin version requirement match');
+              _init(this,plugin);
+            } else {
+              debug('[Initilize] Plugin version requirement mis-match');
+            }
+          } else {
+            debug('[Initilize] Plugin requirement not met');
+            debug('[Initilize] Plugin requires %s',key);
+          }
+        },this);
+      },this);
+    } else {
+      _init(this,plugin);
+    }
+    debug('[Initilize] Finishing');
   },
   this.initilizeAll = function() {
-    console.log('[PluginLoader] [InitilizeAll] Starting');
+    debug('[InitilizeAll] Starting');
     Object.keys(this.plugins['loaded']).forEach(function(elem) {
       this.initilize(elem);
     },this);
-    console.log('[PluginLoader] [InitilizeAll] Finishing');
+    debug('[InitilizeAll] Finishing');
   },
   this.loadRoutes = function() {
-    console.log('[PluginLoader] [LoadRoutes] Starting');
+    debug('[LoadRoutes] Starting');
     Object.keys(this.plugins['initilized']).forEach(function(plugin) {
       try {
         plugin.loadRoutes();
       } catch (e) {
-        console.log('');
+        debug(e);
     }},this);
-    console.log('[PluginLoader] [LoadRoutes] Finishing');
+    debug('[LoadRoutes] Finishing');
   },
   this.getPlugins = function() {
     return this.plugins;
@@ -88,7 +103,7 @@ function _listSubDirectories(directory) {
     subDirs = subDirs.map(function(dir) { return directory + '/' + dir; });
     return subDirs.filter(function(d,i,a) { if(_isDirectory(d)) { return true;} return false;});
   } else {
-    console.log('[PluginLoader] [LSD] Not a directory');
+    debug('[LSD] Not a directory');
     return [];
   }
 }
@@ -97,12 +112,20 @@ function _isDirectory(directory) {
   return (fs.statSync(directory)).isDirectory();
 }
 
-function _checkVersion(plugin,target) {
-  var re = /(\d).(\d).(\d)/;
-  var major, minor, bug = re.test(target.version);
-  return true;
+function _versionCheck(plugin,target) {
+  var satisfies = semver.satisfies(plugin, '>='+target);
+  debug('[VersionCheck] %s',satisfies);
+  return satisfies;
 }
 
-
+function _init(t,plugin) {
+  debug('[Initilize] Initilizing %s', plugin);
+  try {
+    t.plugins['loaded'][plugin].initilize();
+    t.plugins['initilized'][plugin] = t.plugins['loaded'][plugin];
+  } catch(e) {
+    debug('[Initilize] Plugin %s doesn\'t have an initilize method',plugin);
+  }
+}
 
 module.exports = PluginLoader;
