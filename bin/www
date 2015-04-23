@@ -5,6 +5,7 @@
  */
 
 var app = require('../app');
+//var app = require('../scratchpad');
 var debug = require('debug')('automata2:server');
 var http = require('http');
 

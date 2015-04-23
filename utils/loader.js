@@ -7,12 +7,13 @@ var Q = require('q');
 var path = require('path');
 var util = require('util');
 var semver = require('semver');
+var express = require('express');
 
 var PluginLoader = function(pluginDirectory) {
-  this.basepath = path.join('/',path.relative('/',pluginDirectory)); 
-  debug('[Discover] [Init] %s',this.basepath);
-  this.plugins = {'discovered':{},'loaded':{},'initilized':{}};
+  this.basepath = path.join('/',path.relative('/',pluginDirectory)),
+  this.plugins = {'discovered':{},'loaded':{},'initilized':{},'routed':{}},
   this.directories,
+  this.router = express.Router(),
   this.discover = function() {
     debug('[Discover] Starting');
     var that = this;
@@ -21,7 +22,7 @@ var PluginLoader = function(pluginDirectory) {
     this.plugins['discovered'].forEach(function(plugin) {
       debug('[Discover] Found plugin at %s',plugin);
     });
-    debug('[Discover] Finished');
+    debug('[Discover] Finishing');
   },
   this.load = function(options) {
     debug('[Load] Starting');
@@ -40,19 +41,19 @@ var PluginLoader = function(pluginDirectory) {
     debug('[Load] Finished');
   },
   this.initilize = function(plugin) {
+    debug('[Initilize] Starting');
     var p = this.plugins['loaded'][plugin];
     // need to create a dependency chain
-    debug('[Initilize] Starting');
     if(p.requires) {
       p.requires.forEach(function(req) {
         var keys = Object.keys(req);
         keys.forEach(function(key) {
           if(this.plugins['loaded'][key]) {
             if(_versionCheck(this.plugins['loaded'][key].version, req[key])) {
-              debug('[Initilize] Plugin version requirement match');
+              debug('[Initilize] Plugin version requirement met');
               _init(this,plugin);
             } else {
-              debug('[Initilize] Plugin version requirement mis-match');
+              debug('[Initilize] Plugin version requirement not met');
             }
           } else {
             debug('[Initilize] Plugin requirement not met');
@@ -67,21 +68,34 @@ var PluginLoader = function(pluginDirectory) {
   },
   this.initilizeAll = function() {
     debug('[InitilizeAll] Starting');
-    Object.keys(this.plugins['loaded']).forEach(function(elem) {
-      this.initilize(elem);
+    Object.keys(this.plugins['loaded']).forEach(function(plugin) {
+      this.initilize(plugin);
     },this);
     debug('[InitilizeAll] Finishing');
   },
-  this.loadRoutes = function() {
+  this.loadRoutes = function(plugin) {
     debug('[LoadRoutes] Starting');
-    Object.keys(this.plugins['initilized']).forEach(function(plugin) {
-      try {
-        plugin.loadRoutes();
-      } catch (e) {
-        debug(e);
-    }},this);
+    try {
+      var p = this.plugins['initilized'][plugin];
+      this.router.use('/api/' + plugin, p.loadRoutes());
+      this.router.get('/api', function(req, res) {
+        res.send('/api');
+      });
+      this.plugins['routed']['plugin'] = p;
+    } catch (e) {
+      debug('[LoadRoutes] plugin \'%s\' doesn\'t have a loadRoutes method',plugin);
+    }
     debug('[LoadRoutes] Finishing');
+    return this.router;
   },
+  this.loadRoutesAll = function () {
+    debug('[LoadRoutesAll] Starting');
+    Object.keys(this.plugins['initilized']).forEach(function(plugin) {
+      this.loadRoutes(plugin);
+    },this);
+    debug('[LoadRoutesAll] Finishing');
+    return this.router;
+  }
   this.getPlugins = function() {
     return this.plugins;
   },
@@ -93,6 +107,9 @@ var PluginLoader = function(pluginDirectory) {
   },
   this.getInitilized = function() {
     return this.plugins['initilized'];
+  },
+  this.getRouted = function() {
+    return this.plugins['routed'];
   }
 }
 

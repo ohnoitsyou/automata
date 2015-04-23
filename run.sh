@@ -1,3 +1,5 @@
 #!/bin/bash
 reset;
-DEBUG=automata2:*,PluginLoader,spark,lights ./bin/www
+DEBUG=automata,automata2:*,PluginLoader,spark,lights ./bin/www
+#DEBUG=scratch ./bin/www
+

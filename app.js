@@ -1,5 +1,6 @@
 "use strict";
 var debug = require('debug')('automata');
+debug('[Automata] Welcome to Automata');
 var express = require("express");
 var path = require("path");
 //var favicon = require("serve-favicon");
@@ -17,13 +18,14 @@ var loader = new PluginLoader(config.get("pluginDir"));
 //var loadOptions = {'sparkUsername': config.get('sparkUsername'), 'sparkPassword': config.get('sparkPassword')};
 var loadOptions = {"sparkAccessToken": config.get("sparkAccessToken")};
 
-loader.discover();
-loader.load(loadOptions);
-//loader.initilize("lights");
-loader.initilizeAll();
 
 var app = express();
 app.enable('trust proxy');
+
+loader.discover();
+loader.load(loadOptions);
+loader.initilizeAll();
+app.use('/',loader.loadRoutesAll());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -39,6 +41,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", routes);
 app.use("/users", users);
+
+//debug('[Automata]',app._router.stack);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
