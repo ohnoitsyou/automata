@@ -2,3 +2,5 @@ node_modules
 *.sw*
 
 !config/example.json
+
+config/default.json
