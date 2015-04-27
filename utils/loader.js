@@ -3,7 +3,6 @@
 //
 var debug = require('debug')('PluginLoader');
 var fs = require('fs');
-var Q = require('q');
 var path = require('path');
 var util = require('util');
 var semver = require('semver');
@@ -95,6 +94,13 @@ var PluginLoader = function(pluginDirectory) {
     },this);
     debug('[LoadRoutesAll] Finishing');
     return this.router;
+  },
+  this.gatherMethods = function() {
+    debug('[GatherMethods] Starting');
+    Object.keys(this.plugins['loaded']).forEach(function(plugin) {
+      debug('[GatherMethods] [Target]',plugin);
+    });
+    debug('[GatherMethods] Finishing');
   }
   this.getPlugins = function() {
     return this.plugins;
