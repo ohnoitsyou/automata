@@ -1,6 +1,6 @@
 "use strict";
-var debug = require('debug')('automata');
-debug('[Automata] Welcome to Automata');
+var debug = require("debug")("automata");
+debug("[Automata] Welcome to Automata");
 var express = require("express");
 var path = require("path");
 //var favicon = require("serve-favicon");
@@ -20,12 +20,12 @@ var loadOptions = {"sparkAccessToken": config.get("sparkAccessToken")};
 
 
 var app = express();
-app.enable('trust proxy');
+app.enable("trust proxy");
 
 loader.discover();
 loader.load(loadOptions);
 loader.initilizeAll();
-app.use('/',loader.loadRoutesAll());
+app.use("/", loader.loadRoutesAll());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -62,6 +62,7 @@ if (app.get("env") === "development") {
       message: err.message,
       error: err
     });
+    next();
   });
 }
 
@@ -73,6 +74,7 @@ app.use(function(err, req, res, next) {
     message: err.message,
     error: {}
   });
+  next();
 });
 
 module.exports = app;
