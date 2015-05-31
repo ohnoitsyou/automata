@@ -25,7 +25,7 @@ app.enable("trust proxy");
 loader.discover();
 loader.load(loadOptions);
 loader.initilizeAll();
-app.use("/", loader.loadRoutesAll());
+app.use("/", loader.loadRoutesAll(app));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

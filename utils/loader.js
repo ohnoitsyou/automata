@@ -74,43 +74,72 @@ var PluginLoader = function(pluginDirectory) {
     }, this);
     debug("[InitilizeAll] Finishing");
   };
-  this.loadRoutes = function(plugin) {
+  this.loadRoutes = function(app,plugin) {
     debug("[LoadRoutes] Starting");
+    var gApp = app;
     try {
       var p = this.plugins.initilized[plugin];
-      this.router.use("/api/" + plugin, p.loadRoutes());
+      this.router.use("/api/" + plugin, p.loadRoutes(gApp));
       this.router.get("/api", function(req, res) {
-        res.send("/api");
+        rse.send("API!");
       });
-      this.plugins.routed.plugin = p;
+      this.plugins.routed[plugin] = p;
     } catch (e) {
       debug("[LoadRoutes] plugin \"%s\" doesn\"t have a loadRoutes method", plugin);
     }
+    this.routes();
     debug("[LoadRoutes] Finishing");
     return this.router;
   };
-  this.loadRoutesAll = function () {
+  this.loadRoutesAll = function(app) {
     debug("[LoadRoutesAll] Starting");
+    var gApp = app;
     Object.keys(this.plugins.initilized).forEach(function(plugin) {
-      this.loadRoutes(plugin);
+      this.loadRoutes(gApp,plugin);
     }, this);
     debug("[LoadRoutesAll] Finishing");
     return this.router;
+  };
+  this.routes = function() {
+    debug("[LoadRoutes] Loading internal routes");
+    var self = this;
+      this.router.get("/loader", function(req, res) {
+        res.send("/loader");
+      });
+      this.router.get("/loader/pluginList", function(req, res) {
+        res.json(JSON.stringify(self.getDiscovered()));
+      });
+      this.router.get("/loader/discoveredList", function(req, res) {
+        res.json(JSON.stringify(self.getDiscovered()));
+      });
+      this.router.get("/loader/loadedList", function(req, res) {
+        res.json(JSON.stringify(self.getLoaded()));
+      });
+      this.router.get("/loader/initilizedList", function(req, res) {
+        res.json(JSON.stringify(self.getInitilized()));
+      });
+      this.router.get("/loader/routedList", function(req, res) {
+        res.json(JSON.stringify(self.getRouted()));
+      });
+    debug("[LoadRoutes] Internal routes loaded");
   };
   this.getPlugins = function() {
     return this.plugins;
   };
   this.getDiscovered = function() {
-    return this.plugins.discovered;
+    return this.plugins.discovered.map(function(cv,i,a) {
+      var s = cv.split("/");
+      return s[s.length - 1];
+    });
   };
   this.getLoaded = function() {
-    return this.plugins.loaded;
+    return Object.keys(this.plugins.loaded);
   };
   this.getInitilized = function() {
-    return this.plugins.initilized;
+    return Object.keys(this.plugins.initilized);
   };
   this.getRouted = function() {
-    return this.plugins.routed;
+    return Object.keys(this.plugins.routed);
   };
 };
 
