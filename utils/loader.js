@@ -81,7 +81,7 @@ var PluginLoader = function(pluginDirectory) {
       var p = this.plugins.initilized[plugin];
       this.router.use("/api/" + plugin, p.loadRoutes(gApp));
       this.router.get("/api", function(req, res) {
-        rse.send("API!");
+        res.send("API!");
       });
       this.plugins.routed[plugin] = p;
     } catch (e) {
