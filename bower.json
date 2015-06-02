@@ -1,0 +1,21 @@
+{
+  "name": "automata",
+  "version": "0.1.0",
+  "homepage": "https://github.com/ohnoitsyou/automata",
+  "authors": [
+    "David Young <ohnoitsyou7043@gmail.com>"
+  ],
+  "description": "Automation platform",
+  "main": "run.sh",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0"
+  }
+}
