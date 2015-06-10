@@ -22,10 +22,21 @@ var loadOptions = {"sparkAccessToken": config.get("sparkAccessToken")};
 var app = express();
 app.enable("trust proxy");
 
+// app res variables
+app.all('*',function(req, res, next) {
+  res.locals.pluginDir = config.get("pluginDir").substring(1);
+  res.locals.baseURI = "http://automata.ohnoitsyou.net";
+  debug(res.locals);
+  next();
+});
+
 loader.discover();
 loader.load(loadOptions);
 loader.initilizeAll();
+loader.registerViews();
 app.use("/", loader.loadRoutesAll(app));
+// app local variables
+
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
