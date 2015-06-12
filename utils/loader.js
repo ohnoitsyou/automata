@@ -100,6 +100,25 @@ var PluginLoader = function(pluginDirectory) {
     debug("[LoadRoutesAll] Finishing");
     return this.router;
   };
+  this.registerViews = function() {
+    debug("[RegisterViews] Starting");
+    Object.keys(this.plugins.initilized).forEach(function(plugin) {
+      var p = this.plugins.initilized[plugin];
+      if(typeof p.registerViews === 'function') {
+        var views = p.registerViews();
+        views.forEach(function(view) {
+          debug("[RegisterViews] %s", view.path);
+          debug("[RegisterViews] %s", view.filePath);
+          /*
+          this.router.get(plugin + '/view' + view.path, function(req, res) {
+            res.sendFile(view.filePath);
+          });
+          */
+        },this);
+      }
+    },this);
+    debug("[RegisterViews] Finishing");
+  };
   this.routes = function() {
     debug("[LoadRoutes] Loading internal routes");
     var self = this;
