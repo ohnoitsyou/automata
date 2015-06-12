@@ -22,11 +22,17 @@ var loadOptions = {"sparkAccessToken": config.get("sparkAccessToken")};
 var app = express();
 app.enable("trust proxy");
 
+// view engine setup
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "hbs");
+
+// app local variables
+
 // app res variables
 app.all('*',function(req, res, next) {
   res.locals.pluginDir = config.get("pluginDir").substring(1);
   res.locals.baseURI = "http://automata.ohnoitsyou.net";
-  debug(res.locals);
+  res.locals.render = app.render;
   next();
 });
 
@@ -35,12 +41,6 @@ loader.load(loadOptions);
 loader.initilizeAll();
 loader.registerViews();
 app.use("/", loader.loadRoutesAll(app));
-// app local variables
-
-
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "hbs");
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -52,8 +52,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", routes);
 app.use("/users", users);
-
-//debug('[Automata]',app._router.stack);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
