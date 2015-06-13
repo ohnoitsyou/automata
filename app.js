@@ -23,16 +23,17 @@ var app = express();
 app.enable("trust proxy");
 
 // view engine setup
-app.set("views", path.join(__dirname, "views"));
+//app.set("views", path.join(__dirname, "views"));
+app.set("views",__dirname);
 app.set("view engine", "hbs");
 
 // app local variables
 
 // app res variables
 app.all('*',function(req, res, next) {
-  res.locals.pluginDir = config.get("pluginDir").substring(1);
+  res.locals.pluginDir = config.get("pluginDir");
   res.locals.baseURI = "http://automata.ohnoitsyou.net";
-  res.locals.render = app.render;
+  res.locals.app = app;
   next();
 });
 
@@ -67,7 +68,7 @@ app.use(function(req, res, next) {
 if (app.get("env") === "development") {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render("error", {
+    res.render("views/error", {
       message: err.message,
       error: err
     });
@@ -78,7 +79,7 @@ if (app.get("env") === "development") {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-  res.render("error", {
+  res.render("views/error", {
     message: err.message,
     error: {}
   });
