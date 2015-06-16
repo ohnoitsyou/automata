@@ -9,6 +9,7 @@ var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 //var util = require("util");
 var config = require("config");
+var hbs = require("express-hbs");
 
 var routes = require("./routes/index");
 var users = require("./routes/users");
@@ -25,7 +26,10 @@ app.enable("trust proxy");
 // view engine setup
 //app.set("views", path.join(__dirname, "views"));
 app.set("views",__dirname);
-app.set("view engine", "hbs");
+//app.set("view engine", "hbs");
+app.engine("hbs", hbs.express4({
+  defaultLayout: "./views/index.hbs"
+});
 
 // app local variables
 
