@@ -24,17 +24,17 @@ var app = express();
 app.enable("trust proxy");
 
 // view engine setup
-//app.set("views", path.join(__dirname, "views"));
-app.set("views",__dirname);
-//app.set("view engine", "hbs");
 app.engine("hbs", hbs.express4({
-  defaultLayout: "./views/index.hbs"
-});
+  partialsDir: __dirname + "/views/partials",
+  defaultLayout: __dirname + "/views/layout.hbs"
+}));
+app.set("view engine", "hbs");
+app.set("views", __dirname);
 
 // app local variables
 
 // app res variables
-app.all('*',function(req, res, next) {
+app.all("*",function(req, res, next) {
   res.locals.pluginDir = config.get("pluginDir");
   res.locals.baseURI = "http://automata.ohnoitsyou.net";
   res.locals.app = app;
