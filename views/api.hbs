@@ -9,9 +9,7 @@
         new Ajax.Request("/api/" + plugin + "/render", {
             method: "get",
             onSuccess: function(data) {
-              //console.log(data.responseText);
-              var link = new Element('link', {src: "{{pluginDir}}/" + plugin + data.responseText, 'rel': 'import'});
-              $$('head')[0].insert(link);
+              $$('body')[0].insert(data.responseText);
             }
         });
       });
@@ -22,8 +20,6 @@
         loadedPlugins = JSON.parse(data.responseJSON);
         renderDisplays();
       }
-    });
-    document.observe('dom:loaded', function() {
     });
   </script>
   <div id="elements"></div>

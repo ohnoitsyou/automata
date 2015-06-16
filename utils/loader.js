@@ -8,6 +8,7 @@ var express = require("express");
 
 var PluginLoader = function(pluginDirectory) {
   this.basepath = path.join("/", path.relative("/", pluginDirectory));
+  debug("[PluginDirectory] %s", this.basepath);
   this.plugins = {
     "discovered": {},
     "loaded": {},
@@ -36,7 +37,7 @@ var PluginLoader = function(pluginDirectory) {
       try {
         this.plugins.loaded[pluginName].load(options);
       } catch (e) {
-        debug("[Load] Plugin \"%s\" doesn\"t have a load method", pluginName);
+        debug("[Load] Plugin \"%s\" doesn\'t have a load method", pluginName);
       }
     }
     debug("[Load] Finished");
@@ -100,24 +101,51 @@ var PluginLoader = function(pluginDirectory) {
     debug("[LoadRoutesAll] Finishing");
     return this.router;
   };
-  this.registerViews = function() {
-    debug("[RegisterViews] Starting");
+  this.registerStyles = function(app) {
+    debug("[RegisterStyles] Starting");
     Object.keys(this.plugins.initilized).forEach(function(plugin) {
       var p = this.plugins.initilized[plugin];
-      if(typeof p.registerViews === 'function') {
-        var views = p.registerViews();
-        views.forEach(function(view) {
-          debug("[RegisterViews] %s", view.path);
-          debug("[RegisterViews] %s", view.filePath);
-          /*
-          this.router.get(plugin + '/view' + view.path, function(req, res) {
-            res.sendFile(view.filePath);
+      if(typeof p.registerStyles === "function") {
+        var styles = p.registerStyles(path.join(this.basepath, plugin));
+        if(Array.isArray(styles)) {
+          styles.forEach(function(style) {
+            debug("[RegisterStyles] Registering style: %s", path.join("/", style));
+            app.locals.styles.push(path.join("/", style));
           });
-          */
-        },this);
+        } else if(typeof styles === "string") {
+          debug("[RegisterStyles] Registering style: %s", path.join("/", styles));
+            app.locals.styles.push(path.join("/", styles));
+        } else {
+          debug("[RegisterStyles] %s didnt return valid data", plugin);
+        }
+      } else {
+        debug("[RegisterStyles] %s doesn't have any styles", plugin);
       }
     },this);
-    debug("[RegisterViews] Finishing");
+    debug("[RegisterStyles] Finishing");
+  };
+  this.registerScripts = function(app) {
+    debug("[RegisterScripts] Starting");
+    Object.keys(this.plugins.initilized).forEach(function(plugin) {
+      var p = this.plugins.initilized[plugin];
+      if(typeof p.registerScripts === "function") {
+        var scripts = p.registerScripts(path.join(this.basepath, plugin));
+        if(Array.isArray(scripts)) {
+          scripts.forEach(function(script) {
+            debug("[RegisterScripts] Registering script: %s", path.join("/", script));
+            app.locals.scripts.push(path.join("/", script));
+          });
+        } else if (typeof scripts === "string") {
+          debug("[RegisterScripts] Registering script: %s", path.join("/", script));
+          app.locals.scripts.push(path.join("/", script));
+        } else {
+          debug("[RegisterScripts] %s didn't return valid data", plugin);
+        }
+      } else {
+        debug("[RegisterScripts] %s doesn't have any scripts", plugin);
+      }
+    },this);
+    debug("[RegisterScripts] Finishing");
   };
   this.routes = function() {
     debug("[LoadRoutes] Loading internal routes");

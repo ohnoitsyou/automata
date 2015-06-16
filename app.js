@@ -31,7 +31,32 @@ app.engine("hbs", hbs.express4({
 app.set("view engine", "hbs");
 app.set("views", __dirname);
 
+hbs.registerHelper("styles", function(styles) {
+  var returnString = "";
+  if(Array.isArray(styles)) {
+    styles.forEach(function(style) {
+      returnString += "<link rel=\"stylesheet\" href=\"" + style + "\">\n";
+    });
+  } else if(typeof styles === "string") {
+    returnString = "<link rel=\"stylesheet\" href=\"" + styles + "\">\n";
+  }
+  return returnString;
+});
+hbs.registerHelper("scripts", function(scripts) {
+  var returnString = "";
+  if(Array.isArray(scripts)) {
+    scripts.forEach(function(script) {
+      returnString += "<script type=\"text/javascript\" src=\"" + script + "\"></script>\n";
+    });
+  } else if(typeof scripts === "string") {
+      returnString += "<script type=\"text/javascript\" src=\"" + scripts + "\"></script>\n";
+  }
+  return returnString;
+});
+
 // app local variables
+app.locals.styles = [];
+app.locals.scripts = [];
 
 // app res variables
 app.all("*",function(req, res, next) {
@@ -44,7 +69,8 @@ app.all("*",function(req, res, next) {
 loader.discover();
 loader.load(loadOptions);
 loader.initilizeAll();
-loader.registerViews();
+loader.registerStyles(app);
+loader.registerScripts(app);
 app.use("/", loader.loadRoutesAll(app));
 
 // uncomment after placing your favicon in /public
@@ -54,6 +80,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "plugins")));
 
 app.use("/", routes);
 app.use("/users", users);
