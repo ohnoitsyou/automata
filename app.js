@@ -71,7 +71,7 @@ loader.load(loadOptions);
 loader.initilizeAll();
 loader.registerStyles(app);
 loader.registerScripts(app);
-app.use("/", loader.loadRoutesAll(app));
+app.use("/", loader.loadRoutesAll());
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
