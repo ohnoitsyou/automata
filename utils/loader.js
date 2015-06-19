@@ -153,6 +153,18 @@ var PluginLoader = function(pluginDirectory) {
       this.router.get("/loader", function(req, res) {
         res.send("/loader");
       });
+      this.router.get("/loader/renderable", function(req, res) {
+        var renderable = [];
+        self.getRouted().forEach(function(plugin) {
+          var p = self.plugins.initilized[plugin];
+          p.router.stack.forEach(function(route) {
+            if(route.route.path == "/render") {
+              renderable.push(plugin);
+            }
+          });
+        }, this);
+        res.json(JSON.stringify(renderable));
+      });
       this.router.get("/loader/pluginList", function(req, res) {
         res.json(JSON.stringify(self.getDiscovered()));
       });
