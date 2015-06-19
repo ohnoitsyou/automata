@@ -2,4 +2,6 @@ node_modules
 config/default.json
 TODO
 bower_components
-
+*.sw*
+!config/example.json
+config/default.json
