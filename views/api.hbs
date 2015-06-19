@@ -14,7 +14,7 @@
         });
       });
     }
-    new Ajax.Request("/loader/pluginList", {
+    new Ajax.Request("/loader/renderable", {
       method: 'get',
       onSuccess: function(data) {
         loadedPlugins = JSON.parse(data.responseJSON);
