@@ -109,12 +109,16 @@ var PluginLoader = function(pluginDirectory) {
         var styles = p.registerStyles(path.join(this.basepath, plugin));
         if(Array.isArray(styles)) {
           styles.forEach(function(style) {
-            debug("[RegisterStyles] Registering style: %s", path.join("/", style));
-            app.locals.styles.push(path.join("/", style));
+            if(!/\.gitignore/i.test(style)) {
+              debug("[RegisterStyles] Registering style: %s", path.join("/", style));
+              app.locals.styles.push(path.join("/", style));
+            }
           });
         } else if(typeof styles === "string") {
-          debug("[RegisterStyles] Registering style: %s", path.join("/", styles));
+          if(!/\.gitignore/i.test(styles)) {
+            debug("[RegisterStyles] Registering style: %s", path.join("/", styles));
             app.locals.styles.push(path.join("/", styles));
+          }
         } else {
           debug("[RegisterStyles] %s didnt return valid data", plugin);
         }
@@ -132,12 +136,16 @@ var PluginLoader = function(pluginDirectory) {
         var scripts = p.registerScripts(path.join(this.basepath, plugin));
         if(Array.isArray(scripts)) {
           scripts.forEach(function(script) {
-            debug("[RegisterScripts] Registering script: %s", path.join("/", script));
-            app.locals.scripts.push(path.join("/", script));
+            if(!/\.gitignore/i.test(script)) {
+              debug("[RegisterScripts] Registering script: %s", path.join("/", script));
+              app.locals.scripts.push(path.join("/", script));
+            } 
           });
         } else if (typeof scripts === "string") {
-          debug("[RegisterScripts] Registering script: %s", path.join("/", script));
-          app.locals.scripts.push(path.join("/", script));
+          if(!/\.gitignore/i.test(scripts)) {
+            debug("[RegisterScripts] Registering script: %s", path.join("/", script));
+            app.locals.scripts.push(path.join("/", script));
+          }
         } else {
           debug("[RegisterScripts] %s didn't return valid data", plugin);
         }
