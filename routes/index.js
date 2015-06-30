@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('views/api', { title: 'Automata',pluginDir: res.locals.pluginDir});
+  res.render('views/index', { title: 'Automata',pluginDir: res.locals.pluginDir});
 });
 
 module.exports = router;
