@@ -5,8 +5,8 @@ function renderDisplays() {
       .done(function(data) {
         var rowdiv = document.createElement("div");
         rowdiv.className = "row";
-        $(rowdiv).append('<div class="col-md-2"><h3>' + plugin + '</h3></div');
-        $(rowdiv).append($(data).addClass("col-md-10, plugin"));
+        $(rowdiv).append('<div class="col-md-2 plugin-title"><h3>' + plugin + '</h3></div');
+        $(rowdiv).append($(data).addClass("col-md-10 plugin-controls"));
         $("#elements").append(rowdiv);
       });
   });
