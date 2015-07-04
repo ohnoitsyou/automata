@@ -1,13 +1,13 @@
+/*eslint-env node */
+/*eslint no-unused-vars: 0 */
 "use strict";
 var debug = require("debug")("automata");
 debug("[Automata] Welcome to Automata");
 var express = require("express");
 var path = require("path");
-//var favicon = require("serve-favicon");
 var logger = require("morgan");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
-//var util = require("util");
 var config = require("config");
 var hbs = require("express-hbs");
 
@@ -17,7 +17,7 @@ var PluginLoader = require("./utils/loader");
 var loader = new PluginLoader(config.get("pluginDir"));
 
 //var loadOptions = {'sparkUsername': config.get('sparkUsername'), 'sparkPassword': config.get('sparkPassword')};
-var loadOptions = {"sparkAccessToken": config.get("sparkAccessToken")};
+var loadOptions = {"sparkAccessToken": config.get("sparkAccessToken"), "weavedAddress": config.get("weavedAddress")};
 
 
 var app = express();
@@ -25,8 +25,8 @@ app.enable("trust proxy");
 
 // view engine setup
 app.engine("hbs", hbs.express4({
-  partialsDir: __dirname + "/views/partials",
-  defaultLayout: __dirname + "/views/layout.hbs"
+  partialsDir: path.join(__dirname, "/views/partials"),
+  defaultLayout: path.join(__dirname, "/views/layout.hbs")
 }));
 app.set("view engine", "hbs");
 app.set("views", __dirname);
@@ -59,7 +59,7 @@ app.locals.styles = [];
 app.locals.scripts = [];
 
 // app res variables
-app.all("*",function(req, res, next) {
+app.all("*", function(req, res, next) {
   res.locals.pluginDir = config.get("pluginDir");
   res.locals.baseURI = "http://automata.ohnoitsyou.net";
   res.locals.app = app;

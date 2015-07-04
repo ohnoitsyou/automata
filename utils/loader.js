@@ -1,3 +1,5 @@
+/*eslint-env node */
+/*eslint no-underscore-dangle:0, new-cap:0 */
 "use strict";
 var debug = require("debug")("PluginLoader");
 var fs = require("fs");
@@ -5,6 +7,45 @@ var path = require("path");
 var semver = require("semver");
 var express = require("express");
 //var util = require("util");
+
+function _isDirectory(directory) {
+  return (fs.statSync(directory)).isDirectory();
+}
+
+function _listSubDirectories(directory) {
+  if(_isDirectory(directory)) {
+    var subDirs = fs.readdirSync(directory);
+    subDirs = subDirs.filter(function(dir) { if(!~dir.indexOf(".disabled")) { return true; }});
+    subDirs = subDirs.map(function(dir) {
+      return directory + "/" + dir;
+    });
+    return subDirs.filter(function(d) {
+      if(_isDirectory(d)) {
+        return true;
+      }
+      return false;
+    });
+  } else {
+    debug("[LSD] Not a directory");
+    return [];
+  }
+}
+
+function _versionCheck(plugin, target) {
+  var satisfies = semver.satisfies(plugin, ">=" + target);
+  debug("[VersionCheck] %s", satisfies);
+  return satisfies;
+}
+
+function _init(t, plugin) {
+  debug("[Initilize] Initilizing %s", plugin);
+  try {
+    t.plugins.loaded[plugin].initilize();
+    t.plugins.initilized[plugin] = t.plugins.loaded[plugin];
+  } catch(e) {
+    debug("[Initilize] Plugin %s doesn\"t have an initilize method", plugin);
+  }
+}
 
 var PluginLoader = function(pluginDirectory) {
   this.basepath = path.join("/", path.relative("/", pluginDirectory));
@@ -75,7 +116,7 @@ var PluginLoader = function(pluginDirectory) {
     }, this);
     debug("[InitilizeAll] Finishing");
   };
-  this.loadRoutes = function(app,plugin) {
+  this.loadRoutes = function(app, plugin) {
     debug("[LoadRoutes] Starting");
     var gApp = app;
     try {
@@ -88,7 +129,6 @@ var PluginLoader = function(pluginDirectory) {
     } catch (e) {
       debug("[LoadRoutes] plugin \"%s\" doesn\"t have a loadRoutes method", plugin);
     }
-    this.routes();
     debug("[LoadRoutes] Finishing");
     return this.router;
   };
@@ -96,8 +136,9 @@ var PluginLoader = function(pluginDirectory) {
     debug("[LoadRoutesAll] Starting");
     var gApp = app;
     Object.keys(this.plugins.initilized).forEach(function(plugin) {
-      this.loadRoutes(gApp,plugin);
+      this.loadRoutes(gApp, plugin);
     }, this);
+    this.routes();
     debug("[LoadRoutesAll] Finishing");
     return this.router;
   };
@@ -125,7 +166,7 @@ var PluginLoader = function(pluginDirectory) {
       } else {
         debug("[RegisterStyles] %s doesn't have any styles", plugin);
       }
-    },this);
+    }, this);
     debug("[RegisterStyles] Finishing");
   };
   this.registerScripts = function(app) {
@@ -139,12 +180,12 @@ var PluginLoader = function(pluginDirectory) {
             if(!/\.gitignore/i.test(script)) {
               debug("[RegisterScripts] Registering script: %s", path.join("/", script));
               app.locals.scripts.push(path.join("/", script));
-            } 
+            }
           });
         } else if (typeof scripts === "string") {
           if(!/\.gitignore/i.test(scripts)) {
-            debug("[RegisterScripts] Registering script: %s", path.join("/", script));
-            app.locals.scripts.push(path.join("/", script));
+            debug("[RegisterScripts] Registering script: %s", path.join("/", scripts));
+            app.locals.scripts.push(path.join("/", scripts));
           }
         } else {
           debug("[RegisterScripts] %s didn't return valid data", plugin);
@@ -152,7 +193,7 @@ var PluginLoader = function(pluginDirectory) {
       } else {
         debug("[RegisterScripts] %s doesn't have any scripts", plugin);
       }
-    },this);
+    }, this);
     debug("[RegisterScripts] Finishing");
   };
   this.routes = function() {
@@ -166,7 +207,7 @@ var PluginLoader = function(pluginDirectory) {
         self.getRouted().forEach(function(plugin) {
           var p = self.plugins.initilized[plugin];
           p.router.stack.forEach(function(route) {
-            if(route.route.path == "/render") {
+            if(route.route.path === "/render") {
               renderable.push(plugin);
             }
           });
@@ -194,7 +235,7 @@ var PluginLoader = function(pluginDirectory) {
     return this.plugins;
   };
   this.getDiscovered = function() {
-    return this.plugins.discovered.map(function(cv,i,a) {
+    return this.plugins.discovered.map(function(cv) {
       var s = cv.split("/");
       return s[s.length - 1];
     });
@@ -209,44 +250,5 @@ var PluginLoader = function(pluginDirectory) {
     return Object.keys(this.plugins.routed);
   };
 };
-
-function _listSubDirectories(directory) {
-  if(_isDirectory(directory)) {
-    var subDirs = fs.readdirSync(directory);
-    subDirs = subDirs.filter(function(dir) { if(!~dir.indexOf(".disabled")) { return true; }});
-    subDirs = subDirs.map(function(dir) {
-      return directory + "/" + dir;
-    });
-    return subDirs.filter(function(d, i, a) {
-      if(_isDirectory(d)) {
-        return true;
-      }
-      return false;
-    });
-  } else {
-    debug("[LSD] Not a directory");
-    return [];
-  }
-}
-
-function _isDirectory(directory) {
-  return (fs.statSync(directory)).isDirectory();
-}
-
-function _versionCheck(plugin, target) {
-  var satisfies = semver.satisfies(plugin, ">=" + target);
-  debug("[VersionCheck] %s", satisfies);
-  return satisfies;
-}
-
-function _init(t, plugin) {
-  debug("[Initilize] Initilizing %s", plugin);
-  try {
-    t.plugins.loaded[plugin].initilize();
-    t.plugins.initilized[plugin] = t.plugins.loaded[plugin];
-  } catch(e) {
-    debug("[Initilize] Plugin %s doesn\"t have an initilize method", plugin);
-  }
-}
 
 module.exports = PluginLoader;
