@@ -5,7 +5,6 @@
  */
 
 var app = require('../app');
-//var app = require('../scratchpad');
 var debug = require('debug')('automata2:server');
 var http = require('http');
 
@@ -21,6 +20,12 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+/**
+ * Socket.io
+ */
+var io = app.io;
+io.attach(server);
 
 /**
  * Listen on provided port, on all network interfaces.

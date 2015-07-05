@@ -18,4 +18,9 @@ $(document).ready(function() {
       loadedPlugins = JSON.parse(data);
       renderDisplays();
     });
+  var socket = io.connect('http://automata.ohnoitsyou.net');
+  socket.on('news', function(data) {
+    console.log(data);
+  });
 });
+

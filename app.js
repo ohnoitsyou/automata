@@ -10,9 +10,16 @@ var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var config = require("config");
 var hbs = require("express-hbs");
+// Passport.js
+var passport = require("passport");
+var BasicStrategy = require("passport-http").BasicStrategy;
+var authUsers = config.get("authUsers");
+// Socket.io
+var socket_io = require("socket.io");
 
 var routes = require("./routes/index");
 var users = require("./routes/users");
+
 var PluginLoader = require("./utils/loader");
 var loader = new PluginLoader(config.get("pluginDir"));
 
@@ -22,6 +29,55 @@ var loadOptions = {"sparkAccessToken": config.get("sparkAccessToken"), "weavedAd
 
 var app = express();
 app.enable("trust proxy");
+
+// Passport.js Start
+app.use(passport.initialize());
+function findByUsername(username, fn) {
+  for(var i = 0, len = authUsers.length; i < len; i++) {
+    var user = authUsers[i];
+    if(user.username === username) {
+      return fn(null, user);
+    }   
+  }
+  return fn(null, null);
+}
+
+passport.use(new BasicStrategy({
+	},  
+	function(username, password, done) {
+		findByUsername(username, function(err, user) {
+			if(err) { return done(err); }
+			if(!user) { return done(null, false); }
+			if(user.password != password) {return done(null, false) }
+			return done(null, user);
+		}); 
+	}
+));
+
+passport.serializeUser(function(user, done) {
+    done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+    User.findById(id, function (err, user) {
+          done(err, user);
+            });
+});
+
+app.get("/", passport.authenticate("basic", {session: true}),
+	function(req, res, next) {
+		next();
+	}); 
+// Passport end
+
+// Socket.io start
+var io = socket_io();
+app.io = io;
+
+io.on("connection", function(socket) {
+  debug("Socket conection");
+});
+// Socket.io end
 
 // view engine setup
 app.engine("hbs", hbs.express4({
