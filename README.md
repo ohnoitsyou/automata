@@ -34,3 +34,13 @@ A list of plugins designed to work with Automata:
 ### Adding plugins
 
 Please rename the plugins as you check them out, remove the 'automata' from the folder name. The plugins I've written for Automata don't take this into account in their API scheme. (I'm working on it!)
+
+
+## Authentication
+
+Automata is configured to use basic-auth to secure the UI. Add an array called authUsers to the configuration file. Provide the following details:
+
+* id
+* username
+* password
+* email
