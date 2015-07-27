@@ -28,3 +28,9 @@ A list of plugins designed to work with Automata:
 * [pirelay](https://github.com/ohnoitsyou/automata-pirelay) - Controller for a RasPi based relay board
 * [Spark](https://github.com/ohnoitsyou/automata-spark) - An interface for communicating with Spark {core, photon, electron} devices
 * [RGB Spark](https://github.com/ohnoitsyou/automata-rgb-light) - A Spark based RGB lamp
+* [Spark relay](https://github.com/ohnoitsyou/automata-relay) - A spark controlled relay outlet, similar to the Weaved
+* [Weaved](https://github.com/ohnoitsyou/automata-weaved) - A basic controller for the Weaved IoT device
+* 
+### Adding plugins
+
+Please rename the plugins as you check them out, remove the 'automata' from the folder name. The plugins I've written for Automata don't take this into account in their API scheme. (I'm working on it!)
